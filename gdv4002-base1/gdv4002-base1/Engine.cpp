@@ -4,9 +4,10 @@
 static GLFWwindow* window = nullptr;
 
 
-// Function prototypes
-void renderScene();
-void updateScene();
+// (private) function prototypes
+void defaultRenderScene();
+void defaultUpdateScene();
+void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 void resizeWindow(GLFWwindow* window, int width, int height);
 
 
@@ -38,7 +39,7 @@ int engineInit(const char* windowTitle, int initWidth, int initHeight) {
 
 	// Set callback functions to handle different events
 	glfwSetFramebufferSizeCallback(window, resizeWindow);
-
+	glfwSetKeyCallback(window, defaultKeyboardHandler);
 
 	// Initialise glew
 	glewInit();
@@ -48,25 +49,28 @@ int engineInit(const char* windowTitle, int initWidth, int initHeight) {
 	resizeWindow(window, initWidth, initHeight);
 
 	// Initialise scene - geometry and shaders etc
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
+	glClearColor(0.0f, 0.0f, 1.0f, 0.0f); // setup background colour to be black
 
 	return 0; // success
 }
 
 
-void enterEngineMainLoop() {
+void engineMainLoop() {
 
 	// Loop while program is not terminated.
 	while (!glfwWindowShouldClose(window)) {
 
-		updateScene();
-		renderScene();				// Render into the current buffer
-		glfwSwapBuffers(window);	// Displays what was just rendered (using double buffering).
+		// Update game environment
+		defaultUpdateScene();
 
-		// Poll events (key presses, mouse events)
-		// glfwWaitEvents();				// Use this if no animation.
-		// glfwWaitEventsTimeout(1.0/60.0);	// Use this to animate at 60 frames/sec (timing is NOT reliable)
-		glfwPollEvents();					// Use this version when animating as fast as possible
+		// Render current frame
+		defaultRenderScene();
+
+		// Display newly rendered frame
+		glfwSwapBuffers(window);
+
+		// Poll events ie. user input (key presses, mouse events)
+		glfwPollEvents();
 	}
 }
 
@@ -82,17 +86,19 @@ void setKeyboardHandler(GLFWkeyfun newKeyboardHandler) {
 
 // Internal engine event Handlers
 
-void renderScene()
+void defaultRenderScene()
 {
 	// Clear the rendering window
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render objects here...
+
+	
 }
 
-
 // Function called to animate elements in the scene
-void updateScene() {
+void defaultUpdateScene() {
+
 }
 
 
@@ -100,4 +106,26 @@ void updateScene() {
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);		// Draw into entire window
+}
+
+
+void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS) {
+
+		// check which key was pressed...
+		switch (key)
+		{
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, true);
+			break;
+
+		default:
+		{
+		}
+		}
+	}
+	else if (action == GLFW_RELEASE) {
+		// handle key release events
+	}
 }

@@ -15,7 +15,7 @@
 
 int engineInit(const char* windowTitle, int initWidth = 1920, int initHeight = 1080);
 
-void enterEngineMainLoop();
+void engineMainLoop();
 
 // Event registration
 void setKeyboardHandler(GLFWkeyfun newKeyboardHandler);
