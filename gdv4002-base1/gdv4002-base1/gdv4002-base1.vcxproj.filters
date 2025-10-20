@@ -24,9 +24,27 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="GUClock.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="GUMemory.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="GUObject.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GUClock.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GUMemory.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GUObject.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

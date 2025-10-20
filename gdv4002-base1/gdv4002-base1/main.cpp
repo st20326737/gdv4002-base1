@@ -16,7 +16,8 @@ int main(void) {
 
 	engineMainLoop();
 
-	glfwTerminate();
+	engineShutdown();
+
 	return 0;
 }
 

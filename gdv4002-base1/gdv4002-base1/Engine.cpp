@@ -2,16 +2,19 @@
 
 // Engine variables
 static GLFWwindow* window = nullptr;
+static std::string windowTitleString;
+CoreStructures::GUClock* gameClock = nullptr;
 
 
 // (private) function prototypes
 void defaultRenderScene();
-void defaultUpdateScene();
+void defaultUpdateScene(double tDelta);
 void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
-void resizeWindow(GLFWwindow* window, int width, int height);
+void defaultResizeWindow(GLFWwindow* window, int width, int height);
 
 
 using namespace std;
+using namespace CoreStructures;
 
 
 int engineInit(const char* windowTitle, int initWidth, int initHeight) {
@@ -37,19 +40,23 @@ int engineInit(const char* windowTitle, int initWidth, int initHeight) {
 
 	glfwMakeContextCurrent(window);
 
+	windowTitleString = std::string(windowTitle);
+	
 	// Set callback functions to handle different events
-	glfwSetFramebufferSizeCallback(window, resizeWindow);
+	glfwSetFramebufferSizeCallback(window, defaultResizeWindow);
 	glfwSetKeyCallback(window, defaultKeyboardHandler);
 
 	// Initialise glew
 	glewInit();
 
-
 	// Setup window's initial size
-	resizeWindow(window, initWidth, initHeight);
+	defaultResizeWindow(window, initWidth, initHeight);
 
 	// Initialise scene - geometry and shaders etc
 	glClearColor(0.0f, 0.0f, 1.0f, 0.0f); // setup background colour to be black
+
+	// Initialise main game clock (starts by default)
+	gameClock = new GUClock();
 
 	return 0; // success
 }
@@ -60,8 +67,11 @@ void engineMainLoop() {
 	// Loop while program is not terminated.
 	while (!glfwWindowShouldClose(window)) {
 
+		gameClock->tick();
+		double tDelta = gameClock->gameTimeDelta();
+
 		// Update game environment
-		defaultUpdateScene();
+		defaultUpdateScene(tDelta);
 
 		// Render current frame
 		defaultRenderScene();
@@ -71,7 +81,23 @@ void engineMainLoop() {
 
 		// Poll events ie. user input (key presses, mouse events)
 		glfwPollEvents();
+
+		char timingString[256];
+		sprintf_s(timingString, 256, "%s: Average fps: %.0f; Average spf: %f", windowTitleString.c_str(), gameClock->averageFPS(), gameClock->averageSPF() / 1000.0f);
+		glfwSetWindowTitle(window, timingString);
 	}
+}
+
+void engineShutdown() {
+
+	// Ready to exit - report timing data from loop epoch
+	if (gameClock) {
+
+		gameClock->stop();
+		gameClock->reportTimingData();
+	}
+
+	glfwTerminate();
 }
 
 
@@ -97,13 +123,13 @@ void defaultRenderScene()
 }
 
 // Function called to animate elements in the scene
-void defaultUpdateScene() {
+void defaultUpdateScene(double tDelta) {
 
 }
 
 
 // Function to call when window resized
-void resizeWindow(GLFWwindow* window, int width, int height)
+void defaultResizeWindow(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);		// Draw into entire window
 }
