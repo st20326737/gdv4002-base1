@@ -36,6 +36,9 @@
     <ClCompile Include="texture_loader.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject2D.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -54,6 +57,9 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsCore.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject2D.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

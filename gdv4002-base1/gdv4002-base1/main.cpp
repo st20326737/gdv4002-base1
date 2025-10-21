@@ -1,14 +1,12 @@
 #include "Engine.h"
-#include "texture_loader.h"
+
 
 // Function prototypes
 
 void myRenderScene(GLFWwindow* window);
+//void updateScene();
 //void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-//void updateScene();
-
-GLuint textureID;
 
 int main(void) {
 
@@ -17,16 +15,9 @@ int main(void) {
 	if (initResult != 0)
 		return initResult; // exit if setup failed
 
-	// test texture
-	textureID = fiLoadTexture("Resources\\Textures\\bumblebee.png");
-	printf("textureID = %d\n", textureID);
-
-	setRenderFunction(myRenderScene);
-
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glFrontFace(GL_CCW);
+	// Test object setup
+	GameObject2D* player = addObject("player", glm::vec2(-2.0f, 0.0f), 0.0f, glm::vec2(0.5f, 0.5f), "Resources\\Textures\\bumblebee.png");
+	GameObject2D* player2 = addObject("player", glm::vec2(2.0f, 1.0f), 0.0f, glm::vec2(0.25f, 0.25f), "Resources\\Textures\\bumblebee.png");
 
 	engineMainLoop();
 
@@ -38,27 +29,6 @@ int main(void) {
 
 void myRenderScene(GLFWwindow* window)
 {
-	// Render objects here...
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	glBegin(GL_TRIANGLE_STRIP);
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(-0.5f, -0.5f, 0.0f);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
-
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-0.5f, 0.5f, 0.0f);
-
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(0.5f, 0.5f, 0.0f);
-
-	glEnd();
 }
 
 
