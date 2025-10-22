@@ -37,6 +37,11 @@ void setUpdateFunction(UpdateFn fn);
 //
 // Update / Query engine state
 //
+
+// Load a new texture image and return the OpenGL texture ID.  Store the texture internally in the engine for later use.
+GLuint loadTexture(const char* texturePath, TextureProperties texProperties = TextureProperties());
+
+// Provide properties to add a new game object.  This takes relevant properties and creates a new GameObject2D object in the game scene.
 GameObject2D* addObject(
 	const char* name,
 	glm::vec2 initPosition = glm::vec2(0.0f, 0.0f),
@@ -44,6 +49,9 @@ GameObject2D* addObject(
 	glm::vec2 initSize = glm::vec2(1.0f, 1.0f),
 	const char* texturePath = nullptr,
 	TextureProperties texProperties = TextureProperties());
+
+// Add an already existing object to the scene.  This overload of addObject can be used to provide subclasses of GameObject2D since addObject above creates GameObject2D instances directly.
+GameObject2D* addObject(const char* name, GameObject2D* newObject);
 
 // getObject returns the object with the *exact* key match
 GameObject2D* getObject(const char* key);

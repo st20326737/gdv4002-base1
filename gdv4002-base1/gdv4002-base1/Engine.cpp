@@ -182,7 +182,7 @@ void setUpdateFunction(UpdateFn fn) {
 // Update / Query engine state
 //
 
-GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties) {
+GLuint loadTexture(const char* texturePath, TextureProperties texProperties) {
 
 	// Setup texture
 	GLuint texture = 0;
@@ -192,14 +192,10 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 		// check texturePath is not already defined
 		if (textureLib[texturePath] != NULL) {
 
-			printf("using texture %s\n", texturePath);
-
 			// texturePath seen before - get textureID from textureLib
 			texture = textureLib[texturePath];
 		}
 		else {
-
-			printf("loading texture %s\n", texturePath);
 
 			// texturePath not seen before so load texture
 			texture = fiLoadTexture(texturePath, texProperties);
@@ -210,8 +206,23 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 		}
 	}
 
+	return texture;
+}
+
+
+GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties) {
+
+	// Setup texture
+	GLuint texture = loadTexture(texturePath, texProperties);
+
 	// Create new object
 	GameObject2D* newObject = new GameObject2D(initPosition, initOrientation, initSize, texture);
+
+	return addObject(name, newObject);
+	
+}
+
+GameObject2D* addObject(const char* name, GameObject2D* newObject) {
 
 	if (newObject) {
 
@@ -238,6 +249,7 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 	// return pointer to new object in case it's needed for further setup
 	return newObject;
 }
+
 
 // getObject returns the object with the *exact* key match - return null if nothing matches
 GameObject2D* getObject(const char* key) {
