@@ -20,7 +20,6 @@ static std::unordered_map<std::string, GameObject2D*> gameObjects;
 // count number of instances of a given object name in gameObjects
 static std::unordered_map<std::string, int> objectCount;
 
-
 static bool _showAxisLines = true;
 
 static glm::vec4 backgroundColour(0.0f, 0.0f, 0.0f, 1.0f);
@@ -31,7 +30,7 @@ static UpdateFn overrideUpdateFn = nullptr;
 #pragma endregion
 
 
-// (private) function prototypes
+// (private) function prototypes for default event handlers
 void defaultRenderScene();
 void defaultUpdateScene(double tDelta);
 void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -41,6 +40,12 @@ void defaultResizeWindow(GLFWwindow* window, int width, int height);
 using namespace std;
 using namespace CoreStructures;
 
+
+#pragma region Top level engine functionality
+
+//
+// Top level engine functionality - setup, main loop and shutdown
+//
 
 int engineInit(const char* windowTitle, int initWidth, int initHeight, float initViewplaneWidth) {
 
@@ -103,6 +108,7 @@ void engineMainLoop() {
 	// Loop while program is not terminated.
 	while (!glfwWindowShouldClose(window)) {
 
+		// Update game clock and get time elapsed since last time round the loop!
 		gameClock->tick();
 		double tDelta = gameClock->gameTimeDelta();
 
@@ -121,6 +127,7 @@ void engineMainLoop() {
 		// Poll events ie. user input (key presses, mouse events)
 		glfwPollEvents();
 
+		// (optional) Update window title to show current fps / spf
 		char timingString[256];
 		sprintf_s(timingString, 256, "%s: Average fps: %.0f; Average spf: %f", windowTitleString.c_str(), gameClock->averageFPS(), gameClock->averageSPF() / 1000.0f);
 		glfwSetWindowTitle(window, timingString);
@@ -139,8 +146,14 @@ void engineShutdown() {
 	glfwTerminate();
 }
 
+#pragma endregion
+
 
 #pragma region Event Registration
+
+//
+// Event registration
+//
 
  // Keyboard input callback
 void setKeyboardHandler(GLFWkeyfun newKeyboardHandler) {
@@ -148,11 +161,13 @@ void setKeyboardHandler(GLFWkeyfun newKeyboardHandler) {
 	glfwSetKeyCallback(window, newKeyboardHandler);
 }
 
+// Set render function - once set our own game render code will be used
 void setRenderFunction(RenderFn fn) {
 
 	overrideRenderFn = fn;
 }
 
+// Set update function - once set our own game update code will be used
 void setUpdateFunction(UpdateFn fn) {
 
 	overrideUpdateFn = fn;
@@ -161,103 +176,11 @@ void setUpdateFunction(UpdateFn fn) {
 #pragma endregion
 
 
-#pragma region Internal engine event Handlers
-
-void defaultRenderScene()
-{
-	glClearColor(backgroundColour.r,
-		backgroundColour.g,
-		backgroundColour.b,
-		backgroundColour.a);
-
-	// Clear the rendering window
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-viewplaneSize.x / 2.0f, viewplaneSize.x / 2.0f, -viewplaneSize.y / 2.0f, viewplaneSize.y / 2.0f, -1.0f, 1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// Render axis lines if flag set
-	if (_showAxisLines) {
-
-		glColor3f(0.5f, 0.5f, 0.5f);
-		
-		glBegin(GL_LINES);
-
-		glVertex2f(0.0f, -viewplaneSize.y);
-		glVertex2f(0.0f, viewplaneSize.y);
-
-		glVertex2f(-viewplaneSize.x, 0.0f);
-		glVertex2f(viewplaneSize.x, 0.0f);
-
-		glEnd();
-	}
-
-	// call render override if set...
-	if (overrideRenderFn != nullptr) {
-
-		overrideRenderFn(window);
-	} 
-	else {
-
-		// ...if not set render default scene
-
-		auto objectIterator = gameObjects.begin();
-
-		while (objectIterator != gameObjects.end()) {
-
-			objectIterator->second->render();
-			objectIterator++;
-		}
-
-	}
-}
-
-// Function called to animate elements in the scene
-void defaultUpdateScene(double tDelta) {
-}
-
-// Function to call when window resized
-void defaultResizeWindow(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);		// Draw into entire window
-
-	windowWidth = width;
-	windowHeight = height;
-
-	viewplaneAspect = (float)windowHeight / (float)windowWidth;
-	viewplaneSize.x = 5.0f;
-	viewplaneSize.y = viewplaneSize.x * viewplaneAspect;
-}
-
-void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (action == GLFW_PRESS) {
-
-		// check which key was pressed...
-		switch (key)
-		{
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window, true);
-			break;
-
-		default:
-		{
-		}
-		}
-	}
-	else if (action == GLFW_RELEASE) {
-		// handle key release events
-	}
-}
-
-#pragma endregion
-
-
 #pragma region Update / query engine state
+
+//
+// Update / Query engine state
+//
 
 GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties) {
 
@@ -322,8 +245,6 @@ GameObject2D* getObject(const char* key) {
 	return gameObjects[key];
 }
 
-
-
 void showAxisLines() {
 
 	_showAxisLines = true;
@@ -342,6 +263,126 @@ bool axisLinesVisible() {
 void setBackgroundColour(glm::vec4& newColour) {
 
 	backgroundColour = newColour;
+}
+
+void setViewplaneWidth(float newWidth) {
+
+	viewplaneSize.x = newWidth;
+	viewplaneSize.y = viewplaneSize.x * viewplaneAspect;
+}
+
+float getViewplaneWidth() {
+
+	return viewplaneSize.x;
+}
+
+float getViewplaneHeight() {
+
+	return viewplaneSize.y;
+}
+
+#pragma endregion
+
+
+#pragma region Internal engine event Handlers
+
+void defaultRenderScene()
+{
+	glClearColor(backgroundColour.r,
+		backgroundColour.g,
+		backgroundColour.b,
+		backgroundColour.a);
+
+	// Clear the rendering window
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-viewplaneSize.x / 2.0f, viewplaneSize.x / 2.0f, -viewplaneSize.y / 2.0f, viewplaneSize.y / 2.0f, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	// Render axis lines if flag set
+	if (_showAxisLines) {
+
+		glColor3f(0.5f, 0.5f, 0.5f);
+
+		glBegin(GL_LINES);
+
+		glVertex2f(0.0f, -viewplaneSize.y);
+		glVertex2f(0.0f, viewplaneSize.y);
+
+		glVertex2f(-viewplaneSize.x, 0.0f);
+		glVertex2f(viewplaneSize.x, 0.0f);
+
+		glEnd();
+	}
+
+	// call render override if set...
+	if (overrideRenderFn != nullptr) {
+
+		overrideRenderFn(window);
+	}
+	else {
+
+		// ...if not set render default scene
+
+		auto objectIterator = gameObjects.begin();
+
+		while (objectIterator != gameObjects.end()) {
+
+			objectIterator->second->render();
+			objectIterator++;
+		}
+
+	}
+}
+
+// Function called to update game objects in the scene
+void defaultUpdateScene(double tDelta) {
+
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++) {
+
+		iter->second->update(tDelta);
+	}
+}
+
+// Function to call when window resized
+void defaultResizeWindow(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);		// Draw into entire window
+
+	windowWidth = width;
+	windowHeight = height;
+
+	viewplaneAspect = (float)windowHeight / (float)windowWidth;
+	viewplaneSize.y = viewplaneSize.x * viewplaneAspect;
+}
+
+void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	// Check if a key is pressed
+	if (action == GLFW_PRESS) {
+
+		// check which key was pressed...
+		switch (key)
+		{
+		case GLFW_KEY_ESCAPE:
+			// If escape is pressed tell GLFW we want to close the window (and quit)
+			glfwSetWindowShouldClose(window, true);
+			break;
+
+		default:
+			{
+			}
+		}
+	}
+	// If not check a key has been released
+	else if (action == GLFW_RELEASE) {
+
+		// handle key release events
+	}
 }
 
 #pragma endregion

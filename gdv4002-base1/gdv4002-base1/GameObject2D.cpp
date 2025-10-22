@@ -53,3 +53,4 @@ void GameObject2D::render() {
 	glPopMatrix();
 }
 
+void GameObject2D::update(double tDelta) {}
