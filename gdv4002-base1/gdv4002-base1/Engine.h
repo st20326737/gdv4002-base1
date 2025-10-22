@@ -17,6 +17,7 @@
 
 
 typedef void (*RenderFn)(GLFWwindow* window);
+typedef void (*UpdateFn)(GLFWwindow* window, double tDelta);
 
 
 // Engine setup, main loop and shutdown
@@ -28,6 +29,9 @@ void engineShutdown();
 // Update / Query engine state
 GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize = glm::vec2(1.0f, 1.0f), const char* texturePath = nullptr);
 
+// getObject returns the object with the *exact* key match
+GameObject2D* getObject(const char* key);
+
 void showAxisLines();
 void hideAxisLines();
 bool axisLinesVisible();
@@ -36,3 +40,9 @@ void setBackgroundColour(glm::vec4& newColour);
 // Event registration
 void setKeyboardHandler(GLFWkeyfun newKeyboardHandler);
 void setRenderFunction(RenderFn fn);
+void setUpdateFunction(UpdateFn fn);
+
+
+// Test functions
+void listObjectCounts();
+void listGameObjectKeys();

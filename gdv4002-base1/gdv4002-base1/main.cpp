@@ -4,9 +4,9 @@
 // Function prototypes
 
 void myRenderScene(GLFWwindow* window);
-//void updateScene();
-//void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
+void myUpdateScene(GLFWwindow* window, double tDelta);
 
+//void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int main(void) {
 
@@ -16,8 +16,13 @@ int main(void) {
 		return initResult; // exit if setup failed
 
 	// Test object setup
-	GameObject2D* player = addObject("player", glm::vec2(-2.0f, 0.0f), 0.0f, glm::vec2(0.5f, 0.5f), "Resources\\Textures\\bumblebee.png");
+	GameObject2D* player1 = addObject("player", glm::vec2(-2.0f, 0.0f), 0.0f, glm::vec2(0.5f, 0.5f), "Resources\\Textures\\bumblebee.png");
 	GameObject2D* player2 = addObject("player", glm::vec2(2.0f, 1.0f), 0.0f, glm::vec2(0.25f, 0.25f), "Resources\\Textures\\bumblebee.png");
+
+	listObjectCounts();
+	listGameObjectKeys();
+
+	setUpdateFunction(myUpdateScene);
 
 	engineMainLoop();
 
@@ -29,6 +34,22 @@ int main(void) {
 
 void myRenderScene(GLFWwindow* window)
 {
+}
+
+void myUpdateScene(GLFWwindow* window, double tDelta) {
+
+	static float theta = 0.0f; // angle - in radians
+
+	const float pi = 3.141593f;
+	const float thetaVelocity = (pi / 180.0f) * 90.0f; // angle change per second (90 degrees)
+
+	GameObject2D* player1 = getObject("player");
+
+	player1->position.x = cosf(theta);
+	player1->position.y = sinf(theta);
+	
+
+	theta += thetaVelocity * tDelta;
 }
 
 

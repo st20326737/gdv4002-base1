@@ -26,6 +26,7 @@ static bool _showAxisLines = true;
 static glm::vec4 backgroundColour(0.0f, 0.0f, 0.0f, 1.0f);
 
 static RenderFn overrideRenderFn = nullptr;
+static UpdateFn overrideUpdateFn = nullptr;
 
 #pragma endregion
 
@@ -106,7 +107,10 @@ void engineMainLoop() {
 		double tDelta = gameClock->gameTimeDelta();
 
 		// Update game environment
-		defaultUpdateScene(tDelta);
+		if (overrideUpdateFn)
+			overrideUpdateFn(window, tDelta);
+		else
+			defaultUpdateScene(tDelta);
 
 		// Render current frame
 		defaultRenderScene();
@@ -147,6 +151,11 @@ void setKeyboardHandler(GLFWkeyfun newKeyboardHandler) {
 void setRenderFunction(RenderFn fn) {
 
 	overrideRenderFn = fn;
+}
+
+void setUpdateFunction(UpdateFn fn) {
+
+	overrideUpdateFn = fn;
 }
 
 #pragma endregion
@@ -209,7 +218,6 @@ void defaultRenderScene()
 
 // Function called to animate elements in the scene
 void defaultUpdateScene(double tDelta) {
-
 }
 
 // Function to call when window resized
@@ -249,7 +257,7 @@ void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int actio
 #pragma endregion
 
 
-// Update / query engine state
+#pragma region Update / query engine state
 
 GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath) {
 
@@ -290,15 +298,15 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 		// Find out if object exists and set name key
 		if (objectCount[name] == NULL) {
 
-			// name not registered so first instance - append '1' to end of list (start object counting from 1)
-			keyString = string(name) + to_string(1);
+			// name not registered so first instance
+			objectCount[name] = 1; // initialise key with a value of 1
+			keyString = string(name);
 		}
 		else {
 
-			keyString = string(name) + to_string(objectCount[name] + 1);
+			objectCount[name] = objectCount[name] + 1; // pre-increment count against 'name'
+			keyString = string(name) + to_string(objectCount[name]);
 		}
-
-		objectCount[name] = objectCount[name] + 1;
 
 		// Store object
 		gameObjects[keyString] = newObject;
@@ -307,6 +315,13 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 	// return pointer to new object in case it's needed for further setup
 	return newObject;
 }
+
+// getObject returns the object with the *exact* key match - return null if nothing matches
+GameObject2D* getObject(const char* key) {
+
+	return gameObjects[key];
+}
+
 
 
 void showAxisLines() {
@@ -328,3 +343,30 @@ void setBackgroundColour(glm::vec4& newColour) {
 
 	backgroundColour = newColour;
 }
+
+#pragma endregion
+
+
+#pragma region Test functions
+
+void listObjectCounts() {
+
+	printf("\nObject key counts...\n");
+	for (auto iter = objectCount.begin(); iter != objectCount.end(); iter++) {
+
+		printf("%s has count %d\n", iter->first.c_str(), iter->second);
+	}
+}
+
+void listGameObjectKeys() {
+
+	printf("\nIn-Game object keys...\n");
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++) {
+
+		printf("%s\n", iter->first.c_str());
+	}
+}
+
+#pragma endregion
+
+
