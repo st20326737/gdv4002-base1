@@ -14,6 +14,22 @@ struct TextureProperties {
 	bool		genMipMaps = false;
 	bool		flipImageY = false;
 
+	static TextureProperties NearestFilterTexture() {
+
+		TextureProperties tex = TextureProperties();
+		tex.minFilter = GL_NEAREST;
+		tex.maxFilter = GL_NEAREST;
+		
+		return tex;
+	}
+
+	static TextureProperties LinearFilterTexture() {
+
+		TextureProperties tex = TextureProperties();
+		
+		return tex; // linear is default anyway!
+	}
+
 	TextureProperties() {}
 
 	TextureProperties(bool flipImageY) {

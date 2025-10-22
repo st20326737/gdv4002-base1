@@ -259,7 +259,7 @@ void defaultKeyboardHandler(GLFWwindow* window, int key, int scancode, int actio
 
 #pragma region Update / query engine state
 
-GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath) {
+GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize, const char* texturePath, TextureProperties texProperties) {
 
 	// Setup texture
 	GLuint texture = 0;
@@ -279,7 +279,7 @@ GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrie
 			printf("loading texture %s\n", texturePath);
 
 			// texturePath not seen before so load texture
-			texture = fiLoadTexture(texturePath, TextureProperties());
+			texture = fiLoadTexture(texturePath, texProperties);
 			if (texture > 0) {
 
 				textureLib[texturePath] = texture;

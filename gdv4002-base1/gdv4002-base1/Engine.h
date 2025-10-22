@@ -27,7 +27,7 @@ void engineShutdown();
 
 
 // Update / Query engine state
-GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize = glm::vec2(1.0f, 1.0f), const char* texturePath = nullptr);
+GameObject2D* addObject(const char* name, glm::vec2 initPosition, float initOrientation, glm::vec2 initSize = glm::vec2(1.0f, 1.0f), const char* texturePath = nullptr, TextureProperties texProperties = TextureProperties());
 
 // getObject returns the object with the *exact* key match
 GameObject2D* getObject(const char* key);

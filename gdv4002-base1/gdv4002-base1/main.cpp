@@ -1,12 +1,8 @@
 #include "Engine.h"
 
-
 // Function prototypes
-
-void myRenderScene(GLFWwindow* window);
 void myUpdateScene(GLFWwindow* window, double tDelta);
 
-//void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int main(void) {
 
@@ -16,7 +12,7 @@ int main(void) {
 		return initResult; // exit if setup failed
 
 	// Test object setup
-	GameObject2D* player1 = addObject("player", glm::vec2(-2.0f, 0.0f), 0.0f, glm::vec2(0.5f, 0.5f), "Resources\\Textures\\bumblebee.png");
+	GameObject2D* player1 = addObject("player", glm::vec2(-2.0f, 0.0f), 0.0f, glm::vec2(1.5f, 1.5f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
 	GameObject2D* player2 = addObject("player", glm::vec2(2.0f, 1.0f), 0.0f, glm::vec2(0.25f, 0.25f), "Resources\\Textures\\bumblebee.png");
 
 	listObjectCounts();
@@ -32,10 +28,6 @@ int main(void) {
 }
 
 
-void myRenderScene(GLFWwindow* window)
-{
-}
-
 void myUpdateScene(GLFWwindow* window, double tDelta) {
 
 	static float theta = 0.0f; // angle - in radians
@@ -45,34 +37,11 @@ void myUpdateScene(GLFWwindow* window, double tDelta) {
 
 	GameObject2D* player1 = getObject("player");
 
-	player1->position.x = cosf(theta);
-	player1->position.y = sinf(theta);
-	
+	//player1->position.x = cosf(theta);
+	//player1->position.y = sinf(theta);
+	player1->orientation = theta;
 
 	theta += thetaVelocity * tDelta;
 }
-
-
-// Function to call to handle keyboard input
-//void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
-//{
-//	if (action == GLFW_PRESS) {
-//
-//		// check which key was pressed...
-//		switch (key)
-//		{
-//		case GLFW_KEY_ESCAPE:
-//			glfwSetWindowShouldClose(window, true);
-//			break;
-//
-//		default:
-//		{
-//		}
-//		}
-//	}
-//	else if (action == GLFW_RELEASE) {
-//		// handle key release events
-//	}
-//}
 
 
