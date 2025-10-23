@@ -20,6 +20,52 @@ typedef void (*RenderFn)(GLFWwindow* window);
 typedef void (*UpdateFn)(GLFWwindow* window, double tDelta);
 
 
+// Define new type to store collections of game objects
+struct GameObjectCollection {
+
+	int					objectCount;
+	GameObject2D**		objectArray;
+
+	// Default constructor - setup empty collection (0, nullptr)
+	GameObjectCollection() {
+
+		objectCount = 0;
+		objectArray = nullptr;
+	}
+
+	// Constructor with specific size for the array - zero out (null) all game object pointers in the array
+	GameObjectCollection(int n) {
+
+		objectCount = n;
+		objectArray = (GameObject2D**)calloc(n, sizeof(GameObject2D*));
+	}
+
+	// Copy constructor - copy internal contents
+	GameObjectCollection(const GameObjectCollection& col) {
+
+		if (col.objectCount == 0) {
+
+			objectCount = 0;
+			objectArray = nullptr;
+		}
+		else {
+
+			objectCount = col.objectCount;
+			objectArray = (GameObject2D**)malloc(objectCount * sizeof(GameObject2D*));
+			memcpy_s(objectArray, objectCount * sizeof(GameObject2D*), col.objectArray, objectCount * sizeof(GameObject2D*));
+		}
+	}
+
+	// Destructor to free up resources when collection goes out of scope- need to do this otherwise we get a memory leak :/
+	~GameObjectCollection() {
+
+		if (objectArray)
+			free(objectArray);
+	}
+};
+
+
+
 //
 // Top level engine functionality - setup, main loop and shutdown
 //
@@ -53,8 +99,9 @@ GameObject2D* addObject(
 // Add an already existing object to the scene.  This overload of addObject can be used to provide subclasses of GameObject2D since addObject above creates GameObject2D instances directly.
 GameObject2D* addObject(const char* name, GameObject2D* newObject);
 
-// getObject returns the object with the *exact* key match
+// getObject returns the (singular) object with the *exact* key match
 GameObject2D* getObject(const char* key);
+GameObjectCollection getObjectCollection(const char* key);
 
 void showAxisLines();
 void hideAxisLines();

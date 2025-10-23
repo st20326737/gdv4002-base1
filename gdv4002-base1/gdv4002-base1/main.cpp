@@ -46,7 +46,7 @@ int main(void) {
 	//player2->size = glm::vec2(0.25f, 0.25f);
 
 	// Register our own update function
-	//setUpdateFunction(myUpdateScene);
+	setUpdateFunction(myUpdateScene);
 
 	// Enter main loop - this handles update and render calls
 	engineMainLoop();
@@ -65,12 +65,13 @@ void myUpdateScene(GLFWwindow* window, double tDelta) {
 	const float pi = 3.141593f;
 	const float thetaVelocity = (pi / 180.0f) * 90.0f; // angle change per second (90 degrees)
 
-	GameObject2D* player1 = getObject("player");
+	GameObjectCollection objects = getObjectCollection("player");
 
-	//player1->position.x = cosf(theta);
-	//player1->position.y = sinf(theta);
-	player1->orientation = player1->orientation + (thetaVelocity * tDelta);
+	for (int i = 0; i < objects.objectCount; i++) {
 
+		GameObject2D* player = objects.objectArray[i];
+		player->orientation = player->orientation + (thetaVelocity * tDelta);
+	}
 }
 
 

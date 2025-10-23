@@ -257,6 +257,35 @@ GameObject2D* getObject(const char* key) {
 	return gameObjects[key];
 }
 
+// Return a collection of object where part of the object's key matches the 'key' parameter.  Value semantics is applied so when the caller eventually goes out of scope the collection's destructor will automatically free the internally allocated memory for the collection.
+GameObjectCollection getObjectCollection(const char* key) {
+
+	// Check at least one object has the key
+	if (objectCount[key] == NULL) {
+
+		// If key not present return empty collection (0, nullptr)
+		return GameObjectCollection();
+	}
+	else {
+
+		// Use count array to size collection
+		GameObjectCollection collection = GameObjectCollection(objectCount[key]);
+
+		// Iterate through object list and get those with keys that match
+		int insertIndex = 0;
+		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++) {
+
+			if (iter->first.find(key) != std::string::npos) {
+
+				collection.objectArray[insertIndex] = iter->second;
+				insertIndex++;
+			}
+		}
+
+		return collection;
+	}
+}
+
 void showAxisLines() {
 
 	_showAxisLines = true;
