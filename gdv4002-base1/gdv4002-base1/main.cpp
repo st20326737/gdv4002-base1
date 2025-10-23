@@ -18,7 +18,6 @@ int main(void) {
 	//
 	// Setup game scene objects here
 	//
-
 	
 
 	// Enter main loop - this handles update and render calls

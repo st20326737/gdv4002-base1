@@ -286,6 +286,131 @@ GameObjectCollection getObjectCollection(const char* key) {
 	}
 }
 
+
+// Delete the game object with key 'key' and return true if successful, false otherwise.  This matches key *exactly*, it does not do a partial match
+bool deleteObject(const char* key) {
+
+	auto iter = gameObjects.find(key);
+
+	if (iter != gameObjects.end()) {
+
+		// Object to delete found - first store key string
+		string objKey = iter->first;
+
+		// ...the delete from gameObjects.
+		gameObjects.erase(iter);
+
+		// Now we need to string-match objKey to the objectCount array.
+		// objectCount keys are a substring of gameObject keys that have numbers appended to differentiate.
+		// When found we decrememt the count.  If it reaches zero erase the key from the count array
+		for (auto countIter = objectCount.begin(); countIter != objectCount.end(); countIter++) {
+
+			if (objKey.find(countIter->first) != std::string::npos) {
+
+				countIter->second = countIter->second - 1; // decrement count
+
+				if (countIter->second == 0) {
+
+					objectCount.erase(countIter);
+				}
+
+				break;
+			}
+		}
+
+		return true;
+	}
+	else {
+
+		return false;
+	}
+}
+
+// Delete the game object pointed to by objectPtr and return true if successful, false otherwise.  It is assumed 1 instance if each objectPtr exists in the object list maintained by the engine.  If this is not the case then the first instance of the pointer only is deleted.
+bool deleteObject(GameObject2D* objectPtr) {
+
+	bool objectErased = false;
+
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++) {
+
+		if (iter->second == objectPtr) {
+
+			// Object to delete found - first store key string
+			string objKey = iter->first;
+
+			// ...the delete from gameObjects.
+			gameObjects.erase(iter);
+			objectErased = true;
+
+			// Now we need to string-match objKey to the objectCount array.
+			// objectCount keys are a substring of gameObject keys that have numbers appended to differentiate.
+			// When found we decrememt the count.  If it reaches zero erase the key from the count array
+			for (auto countIter = objectCount.begin(); countIter != objectCount.end(); countIter++) {
+
+				if (objKey.find(countIter->first) != std::string::npos) {
+
+					countIter->second = countIter->second - 1; // decrement count
+
+					if (countIter->second == 0) {
+
+						objectCount.erase(countIter);
+					}
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+
+	return objectErased;
+}
+
+// Delete any object where the key partially matches 'key'.  Unlike deleteObject, this can be used to remove groups of like-named objects.  The function returns 0 if no objects matched and nothing was deleted, otherwise it returns the number of elements removed.
+int deleteMatchingObjects(const char* key) {
+
+	int eraseCount = 0;
+
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end();) {
+
+		if (iter->first.find(key) != std::string::npos) {
+
+			// Object to delete found - first store key string
+			string objKey = iter->first;
+
+			// ...the delete from gameObjects.
+			iter = gameObjects.erase(iter);
+			eraseCount++;
+
+			// Now we need to string-match objKey to the objectCount array.
+			// objectCount keys are a substring of gameObject keys that have numbers appended to differentiate.
+			// When found we decrememt the count.  If it reaches zero erase the key from the count array
+			for (auto countIter = objectCount.begin(); countIter != objectCount.end(); countIter++) {
+
+				if (objKey.find(countIter->first) != std::string::npos) {
+
+					countIter->second = countIter->second - 1; // decrement count
+
+					if (countIter->second == 0) {
+
+						objectCount.erase(countIter);
+					}
+
+					break;
+				}
+			}
+		}
+		else {
+
+			iter++;
+		}
+	}
+
+	return eraseCount;
+}
+
+
 void showAxisLines() {
 
 	_showAxisLines = true;

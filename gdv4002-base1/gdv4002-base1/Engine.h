@@ -103,6 +103,16 @@ GameObject2D* addObject(const char* name, GameObject2D* newObject);
 GameObject2D* getObject(const char* key);
 GameObjectCollection getObjectCollection(const char* key);
 
+// Delete the game object with key 'key' and return true if successful, false otherwise.  This matches key *exactly*, it does not do a partial match
+bool deleteObject(const char* key);
+
+// Delete the game object pointed to by objectPtr and return true if successful, false otherwise.  It is assumed 1 instance if each objectPtr exists in the object list maintained by the engine.  If this is not the case then the first instance of the pointer only is deleted.
+bool deleteObject(GameObject2D* objectPtr);
+
+// Delete any object where the key partially matches 'key'.  Unlike deleteObject, this can be used to remove groups of like-named objects.  The function returns 0 if no objects matched and nothing was deleted, otherwise it returns the number of elements removed.
+int deleteMatchingObjects(const char* key);
+
+
 void showAxisLines();
 void hideAxisLines();
 bool axisLinesVisible();
