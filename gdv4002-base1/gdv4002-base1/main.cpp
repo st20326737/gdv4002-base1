@@ -2,10 +2,14 @@
 
 //global veriables
 const float pi = 3.14159265359f;
+const float maxSpeed = 200.0f;
+const float maxTurn = 250.0f;
+
 static bool aPressed = false;//left
 static bool dPressed = false;//right
 static bool wPressed = false;//forward
 static bool sPressed = false;//backward
+
 float turnVelocity = 0.0f;//- = left, + = right
 float turnAcceleration = 5.0f; // degrees per second squared
 float forwardVelocity = 0.0f;//- = back, + = front
@@ -16,6 +20,7 @@ float dy = 0.0f;
 // Function prototypes
 void myUpdateScene(GLFWwindow* window, double tDelta);
 void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
+void keepOnScreen(float viewWidth, float viewHight, GameObject2D*);
 
 
 int main(void) 
@@ -37,7 +42,7 @@ int main(void)
 	// Setup game scene objects here
 	//
 	
-	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(10.0f, 10.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
+	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(5.0f, 5.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
 	setUpdateFunction(myUpdateScene);
 
 	setKeyboardHandler(myKeyboardHandler);
@@ -55,42 +60,54 @@ int main(void)
 
 void myUpdateScene(GLFWwindow* window, double tDelta) 
 {
+	GameObject2D* player1 = getObject("player");
 	
 	// Update game objects here
-
+	keepOnScreen(getViewplaneWidth()/2.0f, getViewplaneHeight()/2.0f, player1);
 
 	// Update player rotation based on key presses
-	float thetaVelocity = (pi / 180.0f) * turnVelocity; // radians per second
+	float thetaVelocity; // radians per second
 	
 
-	GameObject2D* player1 = getObject("player");
+	
 	if (aPressed) 
 	{
 		turnVelocity += turnAcceleration;
-		thetaVelocity = (pi / 180.0f) * turnVelocity;
-		
 	}
 	if (dPressed) 
 	{
 		turnVelocity -= turnAcceleration;
-		thetaVelocity = (pi / 180.0f) * turnVelocity;
-
 	}
+
+	if (fabs(turnVelocity) > maxTurn)
+	{
+		turnVelocity = (turnVelocity / fabs(turnVelocity)) * maxTurn;
+	}
+
+	thetaVelocity = (pi / 180.0f) * turnVelocity;
+
 	player1->orientation += thetaVelocity * (float)tDelta;
 
 	// Update player speed based on key presses
 	if (wPressed)
 	{
 		forwardVelocity += forwardAcceleration;
-		dx = forwardVelocity * cos(player1->orientation) * (float)tDelta;
-		dy = forwardVelocity * sin(player1->orientation) * (float)tDelta;
 	}
 	if (sPressed)
 	{
 		forwardVelocity -= forwardAcceleration;
-		dx = forwardVelocity * cos(player1->orientation) * (float)tDelta;
-		dy = forwardVelocity * sin(player1->orientation) * (float)tDelta;
 	}
+
+	if (fabs(forwardVelocity) > maxSpeed)
+	{
+		forwardVelocity = (forwardVelocity / fabs(forwardVelocity)) * maxSpeed;//scale to max speed with sign
+	}
+
+	dx = forwardVelocity * cos(player1->orientation) * (float)tDelta;
+	dy = forwardVelocity * sin(player1->orientation) * (float)tDelta;
+
+
+
 	player1->position.x += dx;
 	player1->position.y += dy;
 
@@ -161,5 +178,27 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 		{
 		}
 		}
+	}
+}
+
+void keepOnScreen(float viewWidth, float viewHight, GameObject2D* player1)
+{
+	if (player1->position.x < viewWidth && player1->position.x > -viewWidth)
+	{
+		//do nothing
+	}
+	else
+	{
+		player1->position.x *= -1.0f;
+	}
+
+
+	if (player1->position.y < viewHight && player1->position.y > -viewHight)
+	{
+		//do nothing
+	}
+	else
+	{
+		player1->position.y *= -1.0f;
 	}
 }
