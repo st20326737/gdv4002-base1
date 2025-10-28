@@ -183,7 +183,10 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 
 void keepOnScreen(float viewWidth, float viewHight, GameObject2D* player1)
 {
-	if (player1->position.x < viewWidth && player1->position.x > -viewWidth)
+	float width = viewWidth + 2.0f;
+	float height = viewHight + 2.0f;
+
+	if (player1->position.x < width && player1->position.x > -width)
 	{
 		//do nothing
 	}
@@ -193,7 +196,7 @@ void keepOnScreen(float viewWidth, float viewHight, GameObject2D* player1)
 	}
 
 
-	if (player1->position.y < viewHight && player1->position.y > -viewHight)
+	if (player1->position.y < height && player1->position.y > -height)
 	{
 		//do nothing
 	}
