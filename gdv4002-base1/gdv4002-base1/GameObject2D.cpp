@@ -9,6 +9,7 @@ GameObject2D::GameObject2D(glm::vec2 initPosition, float initOrientation, glm::v
 	orientation = initOrientation;
 	size = initSize;
 	textureID = initTextureID;
+
 }
 
 void GameObject2D::render() {
@@ -25,6 +26,9 @@ void GameObject2D::render() {
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textureID);
+		//added trasnparency
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	glBegin(GL_TRIANGLE_STRIP);
@@ -48,6 +52,8 @@ void GameObject2D::render() {
 	if (textureID > 0) {
 
 		glDisable(GL_TEXTURE_2D);
+		//added trasnparency
+		glDisable(GL_BLEND);
 	}
 
 	glPopMatrix();
