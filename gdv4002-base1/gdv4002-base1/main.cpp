@@ -24,6 +24,7 @@ float dy = 0.0f;
 float shootCooldown = 0.2f;
 float shoottimer = 1.0f;
 float maxTurnAsteroid = 5.0f;
+float maxSpeedAsteroid = 5.0f;
 
 // Function prototypes
 void myUpdateScene(GLFWwindow* window, double tDelta);
@@ -365,6 +366,63 @@ void turnAsteroid(double tDelta)
 			}
 			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid;
 			thisBig->orientation += thetaVelocity * (float)tDelta;
+		}
+	}
+	if (mid.objectCount != 0)
+	{
+		for (int x = 0; x < mid.objectCount; x++)
+		{
+			GameObject2D* thisMid = mid.objectArray[x];
+			if (thisMid == nullptr)
+			{
+				continue;
+			}
+			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid * 5;
+			thisMid->orientation += thetaVelocity * (float)tDelta;
+		}
+	}
+	if (small.objectCount != 0)
+	{
+		for (int x = 0; x < small.objectCount; x++)
+		{
+			GameObject2D* thisSmall = small.objectArray[x];
+			if (thisSmall == nullptr)
+			{
+				continue;
+			}
+			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid * 10;
+			thisSmall->orientation += thetaVelocity * (float)tDelta;
+		}
+	}
+}
+
+void moveAsteroid(double tDelta)
+{
+	GameObjectCollection big = getObjectCollection("big");
+	GameObjectCollection mid = getObjectCollection("mid");
+	GameObjectCollection small = getObjectCollection("small");
+	float dx, dy;
+
+	if (big.objectCount == 0 && mid.objectCount == 0 && small.objectCount == 0)
+	{
+		return;
+	}
+	if (big.objectCount != 0)
+	{
+		for (int x = 0; x < big.objectCount; x++)
+		{
+			GameObject2D* thisBig = big.objectArray[x];
+			if (thisBig == nullptr)
+			{
+				continue;
+			}
+
+			dx = maxSpeedAsteroid * cos(thisBig->orientation) * (float)tDelta;// these need to be changed to a fixed angle, for now just using orientation
+			dy = maxSpeedAsteroid * sin(thisBig->orientation) * (float)tDelta;
+
+			thisBig->position.x += dx;
+			thisBig->position.y += dy;
+			
 		}
 	}
 	if (mid.objectCount != 0)
