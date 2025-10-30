@@ -1,4 +1,6 @@
 #include "Engine.h"
+#include <cstdlib>
+#include <ctime>
 
 //global veriables
 const float pi = 3.14159265359f;
@@ -19,6 +21,9 @@ float forwardVelocity = 0.0f;//- = back, + = front
 float forwardAcceleration = 0.5f; // degrees per second squared
 float dx = 0.0f;
 float dy = 0.0f;
+float shootCooldown = 0.2f;
+float shoottimer = 1.0f;
+float maxTurnAsteroid = 5.0f;
 
 // Function prototypes
 void myUpdateScene(GLFWwindow* window, double tDelta);
@@ -27,10 +32,14 @@ void keepOnScreen(float viewWidth, float viewHight, GameObject2D*);
 void shootBullet(GameObject2D*, double tDelta);
 void flyBullet(GameObjectCollection, double tDelta);
 void bulletOffScreen(float, float);
+void spawnAsteroid();
+void turnAsteroid(double);
 
 
 int main(void) 
 {
+	srand(time(0));
+
 	// Pi constant
 	const float pi = 3.14159265359f;
 
@@ -53,6 +62,9 @@ int main(void)
 	//
 	
 	addObject("player", glm::vec2(0.0f, 0.0f), glm::radians(90.0f), glm::vec2(5.0f, 5.0f), "Resources\\Textures\\player1_ship.png", TextureProperties::NearestFilterTexture());
+	
+	spawnAsteroid();
+
 	setUpdateFunction(myUpdateScene);
 
 	setKeyboardHandler(myKeyboardHandler);
@@ -75,11 +87,13 @@ void myUpdateScene(GLFWwindow* window, double tDelta)
 	
 	// Update game objects here
 	keepOnScreen(getViewplaneWidth()/2.0f, getViewplaneHeight()/2.0f, player1);
+	
+	turnAsteroid((float)tDelta);
 
 	// Update player rotation based on key presses
 	float thetaVelocity; // radians per second
 	
-
+	shoottimer += (float)tDelta;
 	
 	if (aPressed) 
 	{
@@ -100,6 +114,16 @@ void myUpdateScene(GLFWwindow* window, double tDelta)
 	player1->orientation += thetaVelocity * (float)tDelta;
 
 	// Update player speed based on key presses
+	if (shoottimer >= shootCooldown)
+	{
+		if (spacePressed)
+	{
+		shootBullet(player1, (float)tDelta);
+		shoottimer = 0.0f;
+		flyingBullet = true;
+	}
+	}
+
 	if (wPressed)
 	{
 		forwardVelocity += forwardAcceleration;
@@ -120,17 +144,14 @@ void myUpdateScene(GLFWwindow* window, double tDelta)
 	player1->position.x += dx;
 	player1->position.y += dy;
 
-	if (spacePressed)
-	{
-		shootBullet(player1, (float)tDelta);
-		spacePressed = false;//only shoot once per press
-		flyingBullet = true;
-	}
 	
-		GameObjectCollection bullets = getObjectCollection("bullet");
-		flyBullet(bullets, (float)tDelta);
+	
+	GameObjectCollection bullets = getObjectCollection("bullet");
+	flyBullet(bullets, (float)tDelta);
 
-		bulletOffScreen(getViewplaneWidth() / 2.0f, getViewplaneHeight() / 2.0f);
+	bulletOffScreen(getViewplaneWidth() / 2.0f, getViewplaneHeight() / 2.0f);
+	
+	
 	
 }
 
@@ -199,6 +220,11 @@ void myKeyboardHandler(GLFWwindow* window, int key, int scancode, int action, in
 			// If escape is pressed tell GLFW we want to close the window (and quit)
 			sPressed = false;
 			break;
+
+		case GLFW_KEY_SPACE:
+			// If escape is pressed tell GLFW we want to close the window (and quit)
+			spacePressed = false;
+			break;
 		default:
 		{
 		}
@@ -233,7 +259,7 @@ void keepOnScreen(float viewWidth, float viewHight, GameObject2D* player1)
 
 void shootBullet(GameObject2D* player1, double tDelta)
 {
-	addObject("bullet", glm::vec2(player1->position.x, player1->position.y), player1->orientation, glm::vec2(1.0f, 1.0f), "Resources\\Textures\\bullet.png", TextureProperties::NearestFilterTexture());
+	addObject("bullet", glm::vec2(player1->position.x, player1->position.y), player1->orientation, glm::vec2(2.5f, 2.5f), "Resources\\Textures\\bullet.png", TextureProperties::NearestFilterTexture());
 	
 }
 void flyBullet(GameObjectCollection bullet, double tDelta)
@@ -286,6 +312,85 @@ void bulletOffScreen(float viewWidth, float viewHight)
 			return;
 
 			
+		}
+	}
+}
+
+void spawnAsteroid()
+{
+	int type, amount;
+	amount = rand() % 10;
+	amount += 1;
+	while (amount > 0)
+	{
+		printf("%d\n", amount);
+		type = rand() % 3;
+		if (type == 0)
+		{
+			addObject("big", glm::vec2((float)(rand() % 100 - 50), (float)(rand() % 100 - 50)), glm::radians(0.0f), glm::vec2(20.0f, 20.0f), "Resources\\Textures\\larg.png", TextureProperties::NearestFilterTexture());
+			amount--;
+		}
+		else if (type == 1)
+		{
+			addObject("mid", glm::vec2((float)(rand() % 100 - 50), (float)(rand() % 100 - 50)), glm::radians(0.0f), glm::vec2(10.0f, 10.0f), "Resources\\Textures\\mid.png", TextureProperties::NearestFilterTexture());
+			amount--;
+		}
+		else
+		{
+			addObject("small", glm::vec2((float)(rand() % 100 - 50), (float)(rand() % 100 - 50)), glm::radians(0.0f), glm::vec2(5.0f, 5.0f), "Resources\\Textures\\small.png", TextureProperties::NearestFilterTexture());
+			amount--;
+		}
+	}
+
+}
+
+void turnAsteroid(double tDelta)
+{
+	GameObjectCollection big = getObjectCollection("big");
+	GameObjectCollection mid = getObjectCollection("mid");
+	GameObjectCollection small = getObjectCollection("small");
+
+	if (big.objectCount == 0 && mid.objectCount == 0 && small.objectCount == 0)
+	{
+		return;
+	}
+	if (big.objectCount != 0)
+	{
+		for (int x = 0; x < big.objectCount; x++)
+		{
+			GameObject2D* thisBig = big.objectArray[x];
+			if (thisBig == nullptr)
+			{
+				continue;
+			}
+			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid;
+			thisBig->orientation += thetaVelocity * (float)tDelta;
+		}
+	}
+	if (mid.objectCount != 0)
+	{
+		for (int x = 0; x < mid.objectCount; x++)
+		{
+			GameObject2D* thisMid = mid.objectArray[x];
+			if (thisMid == nullptr)
+			{
+				continue;
+			}
+			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid * 5;
+			thisMid->orientation += thetaVelocity * (float)tDelta;
+		}
+	}
+	if (small.objectCount != 0)
+	{
+		for (int x = 0; x < small.objectCount; x++)
+		{
+			GameObject2D* thisSmall = small.objectArray[x];
+			if (thisSmall == nullptr)
+			{
+				continue;
+			}
+			float thetaVelocity = (pi / 180.0f) * maxTurnAsteroid * 10;
+			thisSmall->orientation += thetaVelocity * (float)tDelta;
 		}
 	}
 }
